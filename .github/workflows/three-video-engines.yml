@@ -1,0 +1,35 @@
+name: Three video engines benchmark (isolated branch)
+on:
+  push:
+    branches:
+      - bench/three-video-engines-20261116
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  connectivity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test registry and tools
+        shell: bash
+        run: |
+          set -euxo pipefail
+          node --version
+          npm --version
+          npm view hyperframes version
+          npm view remotion version
+          npm view @motionharness/cli version
+          ffmpeg -version | head -1
+          mkdir -p benchmark-artifacts
+          printf 'npm-registry-ok\n' > benchmark-artifacts/registry.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: three-engines-connectivity
+          path: benchmark-artifacts/
+          retention-days: 7
